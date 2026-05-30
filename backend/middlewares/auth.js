@@ -13,7 +13,7 @@ module.exports = {
         }
 
         try {
-            // gue verifikasi token ini valid atau engga pakai secret key
+            // verifikasi token valid atau engga pakai secret key
             // kalau token expired atau dipalsukan, jwt.verify() bakal throw error dan masuk catch
             const check = jwt.verify(token, auth_secret);
 
