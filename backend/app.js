@@ -1,20 +1,19 @@
-require('dotenv').config();
+const express = require('express')
+const app = express()
+const port = 3000
 
-const express = require('express');
-const cors = require('cors');
+// import sequelize lewat models/index.js yang udah auto-load semua model
+const db = require("./models")
 
-const app = express();
-
-// app.use : mendaftarkan routing atau config header lain, urutannya sebelum app.get
-app.use(express.json()); // mengizinkan req.body format json
-app.use(cors()); // mengizinkan semua domain (fe) untuk akses API
+// test koneksi database dulu sebelum apapun
+db.sequelize.authenticate()
+    .then(() => console.log("Database terkoneksi"))
+    .catch((error) => console.error("❌ Koneksi gagal:", error))
 
 app.get('/', (req, res) => {
-    res.send('CuanSense API Running');
+    res.send('CuanSense API jalan!')
 })
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+app.listen(port, () => {
+    console.log(`Server jalan di port ${port}`)
 })

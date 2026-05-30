@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config(); // load semua variabel dari file .env
 
 module.exports = {
   development: {
@@ -6,7 +6,7 @@ module.exports = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME_DEVELOPMENT,
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306, // Buat default kalo ga ada port di env
+    port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT,
   },
   production: {
@@ -14,7 +14,7 @@ module.exports = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME_PRODUCTION,
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT || 3306, // Buat default kalo ga ada port di env
+    port: process.env.DB_PORT || 3306,
     dialect: process.env.DB_DIALECT,
   },
 }
