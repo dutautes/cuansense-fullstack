@@ -6,6 +6,8 @@ const db = require("./models") // import sequelize lewat models/index.js yang ud
 const authRoutes = require('./routes/auth.routes') // import semua auth routes
 const walletRoutes = require('./routes/wallet.routes') // import semua wallet routes
 const { checkToken } = require('./middlewares/auth')
+const categoryRoutes = require('./routes/category.routes') // import semua category routes
+const transactionRoutes = require('./routes/transaction.routes') // import semua transaction routes
 
 // test koneksi database dulu sebelum apapun
 db.sequelize.authenticate()
@@ -20,6 +22,9 @@ app.use('/uploads', express.static('uploads'));
 // daftarin routes dengan prefixnya
 app.use('/auth', authRoutes);
 app.use('/wallets', checkToken, walletRoutes);
+app.use('/categories', checkToken, categoryRoutes);
+app.use('/transactions', checkToken, transactionRoutes);
+
 
 app.get('/', (req, res) => {
     res.send('CuanSense API jalan!')
