@@ -9,6 +9,7 @@ const { checkToken } = require('./middlewares/auth')
 const categoryRoutes = require('./routes/category.routes') // import semua category routes
 const transactionRoutes = require('./routes/transaction.routes') // import semua transaction routes
 const transferRoutes = require('./routes/transfer.routes') // import semua transfer routes
+const budgetRoutes = require('./routes/budget.routes') // import semua budget routes
 
 // test koneksi database dulu sebelum apapun
 db.sequelize.authenticate()
@@ -26,7 +27,7 @@ app.use('/wallets', checkToken, walletRoutes);
 app.use('/categories', checkToken, categoryRoutes);
 app.use('/transactions', checkToken, transactionRoutes);
 app.use('/transfers', checkToken, transferRoutes);
-
+app.use('/budgets', checkToken, budgetRoutes);
 
 app.get('/', (req, res) => {
     res.send('CuanSense API jalan!')
