@@ -10,6 +10,7 @@ const categoryRoutes = require('./routes/category.routes') // import semua categ
 const transactionRoutes = require('./routes/transaction.routes') // import semua transaction routes
 const transferRoutes = require('./routes/transfer.routes') // import semua transfer routes
 const budgetRoutes = require('./routes/budget.routes') // import semua budget routes
+const dashboardRoutes = require('./routes/dashboard.routes') // import semua dashboard routes
 
 // test koneksi database dulu sebelum apapun
 db.sequelize.authenticate()
@@ -28,7 +29,7 @@ app.use('/categories', checkToken, categoryRoutes);
 app.use('/transactions', checkToken, transactionRoutes);
 app.use('/transfers', checkToken, transferRoutes);
 app.use('/budgets', checkToken, budgetRoutes);
-
+app.use('/dashboards', checkToken, dashboardRoutes);
 app.get('/', (req, res) => {
     res.send('CuanSense API jalan!')
 })

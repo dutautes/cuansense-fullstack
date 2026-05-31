@@ -7,6 +7,7 @@ const { Op } = require('sequelize')
 const db = require('../models')
 const fs = require('fs')
 const path = require('path')
+const { Transfer } = require('../models');
 
 module.exports = {
     // =====================
@@ -245,6 +246,104 @@ module.exports = {
 
         } catch (error) {
             await t.rollback();
+            return res.status(500).json(response(500, "Server Error", error.message));
+        }
+    },
+
+    // =====================
+    // GET HISTORY (transaksi + transfer digabung)
+    // =====================
+    getHistory: async (req, res) => {
+        try {
+            const { type, start_date, end_date, page, limit } = req.query;
+
+            const currentPage = parseInt(page) || 1;
+            const perPage = parseInt(limit) || 10;
+            const offset = (currentPage - 1) * perPage; // contoh kalau page=2 dan limit=10, berarti offset=10, jadi data yang ditampilkan mulai dari data ke-11 (index 10) karena index mulai dari 0
+
+            // bangun where clause untuk transaksi
+            const whereTransaction = { user_id: req.userId };
+            if (start_date && end_date) {
+                whereTransaction.transaction_date = {
+                    [Op.between]: [new Date(start_date), new Date(end_date)]
+                };
+            }
+
+            // bangun where clause untuk transfer
+            const whereTransfer = { user_id: req.userId };
+            if (start_date && end_date) {
+                whereTransfer.transfer_date = {
+                    [Op.between]: [new Date(start_date), new Date(end_date)]
+                };
+            }
+
+            // ambil semua transaksi dulu tanpa filter type
+            // nanti type nya di filter setelah data digabung
+            const transactions = await Transaction.findAll({
+                where: whereTransaction,
+                include: [
+                    { model: Wallet, as: 'wallet', attributes: ['id', 'name', 'color'] },
+                    { model: Category, as: 'category', attributes: ['id', 'name', 'icon', 'type'] },
+                ],
+            });
+
+
+            const transfers = await Transfer.findAll({
+                where: whereTransfer,
+                include: [
+                    { model: Wallet, as: 'from_wallet', attributes: ['id', 'name', 'color'] },
+                    { model: Wallet, as: 'to_wallet', attributes: ['id', 'name', 'color'] },
+                ],
+            });
+
+            // format transaksi, kasih penanda label: 'transaction'
+            const formattedTransactions = transactions.map(trx => ({
+                ...trx.toJSON(),
+                label: 'transaction',
+                proof_image: trx.proof_image
+                    ? `${base_url}/uploads/${trx.proof_image}`
+                    : null,
+                date: trx.transaction_date,
+            }));
+
+            // format transfer, kasih penanda label: 'transfer'
+            const formattedTransfers = transfers.map(trf => ({
+                ...trf.toJSON(),
+                label: 'transfer',
+                date: trf.transfer_date,
+            }));
+
+            // gabungin semua data
+            let allHistory = [...formattedTransactions, ...formattedTransfers]
+                .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            // filter by type setelah digabung
+            // kalau type = income/expense → filter transaksi by type nya
+            // kalau type = transfer → tampilkan transfer aja
+            // kalau ga ada type → tampilkan semua
+            if (type) {
+                allHistory = allHistory.filter(item => {
+                    if (type === 'transfer') return item.label === 'transfer'; // kalau type transfer, pastiin item nya transfer
+                    return item.label === 'transaction' && item.type === type; // kalau type income/expense, pastiin item nya transaksi dan type nya sesuai
+                });
+            }
+
+            // pagination manual karena data udah digabung dari 2 sumber
+            const totalData = allHistory.length;
+            const totalPages = Math.ceil(totalData / perPage);
+            const paginatedData = allHistory.slice(offset, offset + perPage); // contoh kalau page=2 dan limit=10, berarti slice(10, 20) → tampilkan data index 10-19 (10 data berikutnya setelah 10 data pertama)
+
+            return res.status(200).json(response(200, "Success", {
+                data: paginatedData,
+                pagination: {
+                    total_data: totalData,
+                    per_page: perPage,
+                    current_page: currentPage,
+                    total_pages: totalPages,
+                }
+            }));
+
+        } catch (error) {
             return res.status(500).json(response(500, "Server Error", error.message));
         }
     },
