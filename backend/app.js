@@ -11,6 +11,7 @@ const transactionRoutes = require('./routes/transaction.routes') // import semua
 const transferRoutes = require('./routes/transfer.routes') // import semua transfer routes
 const budgetRoutes = require('./routes/budget.routes') // import semua budget routes
 const dashboardRoutes = require('./routes/dashboard.routes') // import semua dashboard routes
+const exportRoutes = require('./routes/export.routes') // import semua export routes
 
 // test koneksi database dulu sebelum apapun
 db.sequelize.authenticate()
@@ -30,6 +31,8 @@ app.use('/transactions', checkToken, transactionRoutes);
 app.use('/transfers', checkToken, transferRoutes);
 app.use('/budgets', checkToken, budgetRoutes);
 app.use('/dashboards', checkToken, dashboardRoutes);
+app.use('/export', checkToken, exportRoutes);
+
 app.get('/', (req, res) => {
     res.send('CuanSense API jalan!')
 })
@@ -37,3 +40,7 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Server jalan di port ${port}`)
 })
+
+// app.get : buat test endpoint biasa
+// app.use : buat daftarin route yang ada di file lain, biar rapi
+// app.listen : buat start servernya
