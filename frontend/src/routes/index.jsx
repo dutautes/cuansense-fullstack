@@ -31,6 +31,10 @@ export const router = createBrowserRouter([ // createBrowserRouter : fungsi dari
         loader: authMiddleware,
         children: [
             {
+                index: true, // index : elemen default yang akan ditampilkan kalau URL root '/' diakses
+                loader: () => redirect('/dashboard')
+            },
+            {
                 path: 'dashboard',
                 element: <Dashboard />
             },
@@ -63,12 +67,5 @@ export const router = createBrowserRouter([ // createBrowserRouter : fungsi dari
                 element: <Export />
             },
         ]
-    },
-    // redirect dari / ke /dashboard
-    {
-        path: '/',
-        loader: () => {
-            return redirect('/dashboard')
-        }
     }
 ])
